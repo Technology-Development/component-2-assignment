@@ -1,0 +1,36 @@
+version: '3'
+services:
+  activemq:
+    image: rmohr/activemq:5.10.0
+    container_name: activemq
+    environment:
+      - SPRINGJMS_MYQUEUE= myQueue
+      - SPRING_ACTIVEMQ_BROKER-URL= tcp://localhost:61616
+      - SPRING_ACTIVEMQ_USER= admin
+      - SPRING_ACTIVEMQ_PASSWORD= admin
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+  mysql-standalone:
+    image: 'mysql:5.7'
+    container_name: msql-container
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=tweet_application
+    ports:
+      - "3307:3306"
+  springboot-docker-container:
+    image: springboot-assignment-component-2
+    container_name: springboot-assignment-component-2
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-standalone:3306/tweet_application?autoReconnect=true&useUnicode=yes&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+    build:
+      context: "./"
+      dockerfile: "Dockerfile"
+    depends_on:
+      - mysql-standalone
